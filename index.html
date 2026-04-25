@@ -619,6 +619,24 @@ function render() {
   ctx.beginPath(); ctx.moveTo(0,300); ctx.lineTo(600,300); ctx.stroke();
 
   INTS.forEach(renderInt);
+
+  // ── Legend (bottom-right corner) ──
+  const lx = 600 - 108, ly = 600 - 62;
+  ctx.fillStyle = 'rgba(9,15,10,0.82)';
+  rr(lx-4, ly-4, 112, 58, 5);
+  ctx.font = '8px monospace';
+  ctx.textAlign = 'left';
+  const legend = [
+    [C.blue,   'Low queue (1-8)'],
+    [C.orange, 'Moderate (9-15)'],
+    [C.red,    'Heavy / Emergency'],
+  ];
+  legend.forEach(([col, lbl], i) => {
+    ctx.fillStyle = col;
+    rr(lx, ly + i*17, 8, 8, 2);
+    ctx.fillStyle = C.textDim;
+    ctx.fillText(lbl, lx+12, ly + i*17 + 8);
+  });
 }
 
 // ── UI updates ────────────────────────────────────────────────
