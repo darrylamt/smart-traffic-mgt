@@ -48,7 +48,7 @@ body::before{
 header{
   position:relative;z-index:2;
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 24px;
+  padding:10px 24px;
   border-bottom:1px solid var(--line);
   background:rgba(245,243,238,.9);
   backdrop-filter:blur(8px);
@@ -134,15 +134,15 @@ main{
 }
 
 .stage{
-  display:flex;flex-direction:column;padding:22px;min-width:0;gap:16px;
+  display:flex;flex-direction:column;padding:14px 18px;min-width:0;gap:10px;
 }
 
 /* KPI ribbon */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .kpi{
   background:var(--panel);border:1px solid var(--line);
-  border-radius:12px;padding:12px 14px;
-  display:flex;flex-direction:column;gap:5px;
+  border-radius:10px;padding:10px 12px;
+  display:flex;flex-direction:column;gap:3px;
 }
 .kpi .label{
   font-family:'Roboto Mono',monospace;
@@ -150,7 +150,7 @@ main{
 }
 .kpi .value{
   font-family:'Poppins',sans-serif;font-weight:600;
-  font-size:28px;line-height:1;letter-spacing:-.03em;
+  font-size:24px;line-height:1;letter-spacing:-.03em;
 }
 .kpi .value .unit{
   font-size:12px;color:var(--ink-3);margin-left:2px;font-weight:400;
@@ -165,7 +165,7 @@ main{
 .canvas-card{
   flex:1;min-height:0;
   background:var(--panel);border:1px solid var(--line);
-  border-radius:16px;padding:14px;
+  border-radius:16px;padding:10px;
   display:flex;flex-direction:column;
   box-shadow:0 1px 0 rgba(20,17,13,.02),0 16px 36px -24px rgba(20,17,13,.16);
 }
@@ -188,9 +188,9 @@ main{
 .canvas-coord b{color:var(--ink);font-weight:500;}
 .canvas-wrap{
   flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
-  position:relative;
+  position:relative;overflow:hidden;
 }
-canvas{display:block;max-width:100%;max-height:100%;border-radius:10px;}
+canvas{display:block;border-radius:10px;}
 
 /* Legend */
 .legend{
@@ -356,7 +356,7 @@ aside{
 
 /* Footer */
 footer{
-  border-top:1px solid var(--line);padding:8px 24px;
+  border-top:1px solid var(--line);padding:6px 24px;
   display:flex;justify-content:space-between;align-items:center;
   font-family:'Roboto Mono',monospace;font-size:9px;color:var(--ink-3);
   letter-spacing:.06em;background:var(--panel-2);flex-shrink:0;z-index:2;position:relative;
@@ -1122,13 +1122,27 @@ function loop(ts) {
   requestAnimationFrame(loop);
 }
 
+// ── Canvas scaling ────────────────────────────────────────────
+// The canvas renders at fixed W×H internally; CSS scales it to fill
+// the wrapper without any layout shift.
+function fitCanvas() {
+  const wrap = canvas.parentElement;
+  if (!wrap || wrap.clientWidth === 0) return;
+  const aw = wrap.clientWidth  - 2;
+  const ah = wrap.clientHeight - 2;
+  const scale = Math.min(aw / W, ah / H);
+  canvas.style.width  = Math.round(W * scale) + 'px';
+  canvas.style.height = Math.round(H * scale) + 'px';
+}
+new ResizeObserver(fitCanvas).observe(canvas.parentElement);
+
 // ── Boot ──────────────────────────────────────────────────────
 logEv('Network online · 4 nodes registered', 'info');
 logEv('16 sensors streaming · IR + magnetic + camera', 'info');
 logEv('Cloud uplink healthy · AWS IoT Core (eu-west-1)', 'info');
 logEv('Algorithm armed · G = min(60, 20 + Q/0.5 · 1.5)', 'smart');
 
-document.fonts.ready.then(() => requestAnimationFrame(loop));
+document.fonts.ready.then(() => { fitCanvas(); requestAnimationFrame(loop); });
 </script>
 </body>
 </html>
