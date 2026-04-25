@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STMS · Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f3ee;--panel:#fff;--panel-2:#faf8f3;
+  --ink:#14110d;--ink-2:#4a4640;--ink-3:#8b857a;
+  --line:#e7e2d6;--line-2:#ede8db;
+  --accent:#3d8b5c;--accent-lt:#e8f5ee;
+  --warn:#c28a2a;--danger:#b83c2e;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);
+  font-family:'Poppins',sans-serif;-webkit-font-smoothing:antialiased;
+  line-height:1.7;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle at 1px 1px,rgba(20,17,13,.03) 1px,transparent 0);
+  background-size:22px 22px;z-index:0;}
+
+/* ── Top nav ─────────────────────────────── */
+nav{position:sticky;top:0;z-index:10;background:rgba(245,243,238,.95);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  padding:12px 32px;display:flex;align-items:center;justify-content:space-between;}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-mark{width:28px;height:28px;border-radius:7px;background:var(--ink);
+  display:grid;place-items:center;position:relative;flex-shrink:0;}
+.nav-mark::before,.nav-mark::after{content:"";position:absolute;background:var(--bg);}
+.nav-mark::before{width:11px;height:2px;}.nav-mark::after{width:2px;height:11px;}
+.nav-mark .dot{position:absolute;width:5px;height:5px;border-radius:50%;
+  background:var(--accent);top:5px;right:5px;box-shadow:0 0 0 1.5px var(--ink);}
+.nav-title{font-weight:600;font-style:italic;font-size:17px;letter-spacing:-.02em;}
+.nav-sub{font-family:'Roboto Mono',monospace;font-size:9px;color:var(--ink-3);
+  letter-spacing:.07em;text-transform:uppercase;}
+.nav-links{display:flex;gap:6px;}
+.nav-links a{font-size:11px;color:var(--ink-2);text-decoration:none;
+  padding:5px 11px;border:1px solid var(--line);border-radius:99px;
+  background:var(--panel);transition:all .2s;font-weight:500;}
+.nav-links a:hover,.nav-links a.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+
+/* ── Layout ──────────────────────────────── */
+.wrap{display:grid;grid-template-columns:220px 1fr;max-width:1100px;
+  margin:0 auto;gap:0;position:relative;z-index:1;}
+
+/* Sidebar TOC */
+.toc{position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;
+  padding:28px 20px;border-right:1px solid var(--line);background:var(--panel-2);}
+.toc-title{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:14px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);}
+.toc a{display:block;font-size:12px;color:var(--ink-2);text-decoration:none;
+  padding:5px 8px;border-radius:6px;margin-bottom:2px;transition:all .15s;font-weight:500;}
+.toc a:hover{background:var(--line-2);color:var(--ink);}
+.toc a.sub{padding-left:18px;font-size:11px;font-weight:400;color:var(--ink-3);}
+.toc a.sub:hover{color:var(--ink-2);}
+
+/* Content */
+.content{padding:48px 48px 80px;max-width:760px;}
+
+/* Sections */
+.doc-section{margin-bottom:56px;scroll-margin-top:80px;}
+h1{font-weight:700;font-style:italic;font-size:32px;letter-spacing:-.02em;
+  margin-bottom:8px;line-height:1.2;}
+.subtitle{font-size:14px;color:var(--ink-3);margin-bottom:40px;}
+h2{font-weight:600;font-style:italic;font-size:22px;letter-spacing:-.01em;
+  margin-bottom:16px;margin-top:4px;}
+h3{font-weight:600;font-size:14px;margin-bottom:10px;margin-top:20px;}
+p{font-size:14px;color:var(--ink-2);margin-bottom:14px;line-height:1.75;}
+p:last-child{margin-bottom:0;}
+strong{color:var(--ink);font-weight:600;}
+
+/* Callout boxes */
+.callout{border-left:3px solid var(--accent);background:var(--accent-lt);
+  border-radius:0 8px 8px 0;padding:14px 16px;margin:18px 0;
+  font-size:13px;color:var(--ink-2);}
+.callout.warn{border-color:var(--warn);background:#fdf6e8;}
+.callout.info{border-color:#3b82f6;background:#eff6ff;}
+.callout strong{display:block;margin-bottom:4px;}
+
+/* Code / formula */
+.formula{font-family:'Roboto Mono',monospace;font-size:13px;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:14px 18px;line-height:1.9;margin:16px 0;overflow-x:auto;}
+.formula .kw{color:var(--accent);font-weight:500;}
+.formula .cm{color:var(--ink-3);}
+code{font-family:'Roboto Mono',monospace;font-size:12px;
+  background:var(--line-2);border-radius:4px;padding:1px 5px;color:var(--ink);}
+
+/* Glossary table */
+.table-wrap{overflow-x:auto;margin:18px 0;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;font-family:'Roboto Mono',monospace;font-size:9px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+  padding:8px 12px;border-bottom:2px solid var(--line);}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--line-2);color:var(--ink-2);}
+tbody td:first-child{font-family:'Roboto Mono',monospace;font-size:12px;
+  color:var(--ink);font-weight:500;white-space:nowrap;}
+tbody tr:hover td{background:var(--panel);}
+
+/* Metric cards */
+.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0;}
+.metric-card{background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:14px 16px;}
+.metric-card .name{font-family:'Roboto Mono',monospace;font-size:10px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px;}
+.metric-card .abbr{font-weight:700;font-size:20px;letter-spacing:-.02em;
+  color:var(--accent);margin-bottom:4px;}
+.metric-card p{font-size:12px;color:var(--ink-2);margin:0;}
+
+/* Scenario cards */
+.scen-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0;}
+.scen-card{background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:14px 16px;}
+.scen-card .icon{font-size:22px;margin-bottom:6px;}
+.scen-card .name{font-weight:600;font-size:13px;}
+.scen-card p{font-size:12px;color:var(--ink-2);margin-top:4px;}
+
+/* Phase diagram */
+.phase-flow{display:flex;align-items:center;gap:8px;margin:18px 0;flex-wrap:wrap;}
+.phase-box{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:6px;}
+.phase-box.g{background:#e8f5ee;color:#276641;}
+.phase-box.y{background:#fdf6e8;color:#8a5c1a;}
+.phase-box.r{background:#fdf0ee;color:#8a2a1a;}
+.phase-arrow{color:var(--ink-3);font-size:18px;}
+
+/* Tech stack */
+.stack-list{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.stack-row{display:flex;align-items:flex-start;gap:12px;
+  background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:12px 14px;}
+.stack-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.stack-row h4{font-size:13px;font-weight:600;margin-bottom:2px;}
+.stack-row p{font-size:12px;color:var(--ink-2);margin:0;}
+
+/* Footer */
+footer{border-top:1px solid var(--line);padding:18px 32px;
+  font-family:'Roboto Mono',monospace;font-size:9px;color:var(--ink-3);
+  letter-spacing:.06em;display:flex;justify-content:space-between;
+  background:var(--panel-2);}
+
+/* Responsive */
+@media(max-width:860px){
+  .wrap{grid-template-columns:1fr;}
+  .toc{display:none;}
+  .content{padding:28px 20px 60px;}
+  .metric-grid,.scen-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-mark"><span class="dot"></span></div>
+    <div>
+      <div class="nav-title">Junction / live</div>
+      <div class="nav-sub">Documentation</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="index.html" class="primary">← Back to Simulation</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- Table of contents -->
+  <aside class="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#overview">Overview</a>
+    <a href="#quickstart">Quick Start</a>
+    <a href="#how-signals-work">How Signals Work</a>
+    <a class="sub" href="#fixed">Fixed Timing</a>
+    <a class="sub" href="#smart">Smart Timing</a>
+    <a href="#algorithm">The Algorithm</a>
+    <a href="#emergency">Emergency Vehicles</a>
+    <a href="#scenarios">Scenarios</a>
+    <a href="#metrics">Reading the Metrics</a>
+    <a href="#glossary">Glossary</a>
+    <a href="#tech-stack">Technology Stack</a>
+    <a href="#export">Exporting Data</a>
+  </aside>
+
+  <!-- Main content -->
+  <main class="content">
+
+    <h1>Smart Traffic Management System</h1>
+    <p class="subtitle">A browser-based simulation of adaptive traffic signal control using IoT sensors, edge computing, and cloud analytics — built for GIMPA Data Communications & Networking, Group 7, 2026.</p>
+
+    <!-- ── Overview ───────────────────────────────────────── -->
+    <section class="doc-section" id="overview">
+      <h2>Overview</h2>
+      <p>This simulation demonstrates how a <strong>Smart Traffic Management System (STMS)</strong> can improve traffic flow compared to traditional fixed-timing signals. It models a <strong>2×2 grid of 4 real Accra intersections</strong>: Tetteh Quarshie, Ako-Adjei, Circle, and Kanda.</p>
+      <p>The simulation runs <strong>two independent engines simultaneously</strong> — one using the smart adaptive algorithm, one using conventional fixed 30-second timing — fed with <strong>identical random traffic arrivals</strong>. This gives a fair, real-time comparison of both approaches.</p>
+      <div class="callout">
+        <strong>Key finding (from SUMO simulation in the report)</strong>
+        The smart system reduced average waiting time by <strong>39%</strong> (from 85s to 52s), increased throughput by <strong>32%</strong> (950 → 1,250 veh/hr), and cut emergency vehicle delay by <strong>73%</strong> (45s → 12s).
+      </div>
+    </section>
+
+    <!-- ── Quick Start ────────────────────────────────────── -->
+    <section class="doc-section" id="quickstart">
+      <h2>Quick Start</h2>
+      <h3>Opening the simulation</h3>
+      <p>Open <code>index.html</code> in any modern browser (Chrome, Firefox, Edge). No internet connection, server, or installation required.</p>
+      <h3>What you'll see</h3>
+      <p>The main view is a bird's-eye map of 4 intersections. Small coloured rectangles are <strong>vehicles</strong> queued on each approach road. Coloured circles at each corner are <strong>traffic lights</strong>. The pill labels show the current phase and countdown timer.</p>
+      <h3>Controls</h3>
+      <table>
+        <thead><tr><th>Control</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td>Smart / Fixed</td><td>Switches the display mode. Both engines always run; this just changes what you're looking at on the canvas.</td></tr>
+          <tr><td>1× / 3× / 10×</td><td>Simulation speed. 10× runs 10 simulated seconds per real second — useful for seeing long-term trends quickly.</td></tr>
+          <tr><td>Scenario</td><td>Changes the traffic pattern (arrival rates and vehicle mix). Resets stats automatically.</td></tr>
+          <tr><td>↺ Reset</td><td>Clears all statistics and queue lengths and starts fresh.</td></tr>
+          <tr><td>↓ Export CSV</td><td>Downloads the recorded history as a spreadsheet file.</td></tr>
+          <tr><td>Dispatch ambulance</td><td>Sends an emergency vehicle to a random intersection. The smart system forces a green signal within 5 seconds.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── How signals work ───────────────────────────────── -->
+    <section class="doc-section" id="how-signals-work">
+      <h2>How Traffic Signals Work</h2>
+      <p>Every intersection has two signal phases that alternate: <strong>N/S green</strong> (vehicles going north or south may move) and <strong>E/W green</strong> (east/west vehicles may move). Between each green phase there is a short <strong>yellow</strong> (yield) period of 3 seconds.</p>
+
+      <div class="phase-flow">
+        <div class="phase-box g">🟢 N/S Green</div>
+        <span class="phase-arrow">→</span>
+        <div class="phase-box y">🟡 N/S Yield (3s)</div>
+        <span class="phase-arrow">→</span>
+        <div class="phase-box g">🟢 E/W Green</div>
+        <span class="phase-arrow">→</span>
+        <div class="phase-box y">🟡 E/W Yield (3s)</div>
+        <span class="phase-arrow">→</span>
+        <div class="phase-box g">🟢 N/S Green …</div>
+      </div>
+
+      <h3 id="fixed">Fixed Timing</h3>
+      <p>Traditional traffic lights use a <strong>fixed schedule</strong> — for example, 30 seconds green for N/S, then 30 seconds green for E/W — regardless of how many vehicles are actually waiting. This is simple and predictable, but wasteful: a direction with 20 cars gets the same green time as a direction with 2 cars.</p>
+
+      <h3 id="smart">Smart (Adaptive) Timing</h3>
+      <p>The smart system reads the queue length from sensors every second and <strong>adjusts the green time dynamically</strong>. A longer queue gets more green time. A short queue gets less. This means vehicles spend less time waiting at red lights overall, and the road handles more traffic per hour.</p>
+    </section>
+
+    <!-- ── Algorithm ──────────────────────────────────────── -->
+    <section class="doc-section" id="algorithm">
+      <h2>The Algorithm</h2>
+      <p>The adaptive green-time formula from Section 8.3 of the project report is:</p>
+      <div class="formula">
+<span class="kw">G</span> = min(<span class="kw">G_max</span>, <span class="kw">base_G</span> + (<span class="kw">Q</span> ÷ <span class="kw">sat_flow</span>) × <span class="kw">extra</span>)
+
+<span class="cm">where:</span>
+  G_max    = 60   <span class="cm">← maximum green time (seconds)</span>
+  base_G   = 20   <span class="cm">← minimum green time (seconds)</span>
+  Q        = ?    <span class="cm">← total vehicles queued on the green approaches</span>
+  sat_flow = 0.5  <span class="cm">← vehicles that clear per second per lane</span>
+  extra    = 1.5  <span class="cm">← scaling factor</span></div>
+
+      <div class="callout">
+        <strong>Worked example</strong>
+        Suppose the North approach has 8 vehicles and South has 5 (total Q = 13).<br>
+        G = min(60, 20 + (13 ÷ 0.5) × 1.5) = min(60, 20 + 39) = min(60, 59) = <strong>59 seconds</strong>.<br>
+        Fixed timing would give only 30 seconds — 29 fewer seconds of green for a heavily loaded intersection.
+      </div>
+
+      <p>The algorithm is also subject to a <strong>15-second minimum</strong> (so no phase is ever too short for vehicles to actually move) and a 60-second maximum (to prevent one direction monopolising the intersection). If both queues are empty, green time drops to 15 seconds and the cycle is very fast.</p>
+      <p>The <strong>Algorithm panel</strong> in the sidebar shows these live calculations for whichever intersection currently has the most vehicles waiting.</p>
+    </section>
+
+    <!-- ── Emergency ──────────────────────────────────────── -->
+    <section class="doc-section" id="emergency">
+      <h2>Emergency Vehicle Preemption</h2>
+      <p>When an ambulance, fire truck, or police vehicle approaches an intersection, the system detects it via an <strong>RFID tag</strong> mounted on the vehicle (or a GPS coordinate broadcast). The system then <strong>overrides the normal signal cycle</strong> and forces a green light for the emergency vehicle's approach within 5 seconds.</p>
+      <p>In the simulation, pressing <strong>Dispatch ambulance</strong> triggers this. An ambulance appears at the front of a queue (shown as a white vehicle with a red stripe and blinking red/blue siren). After 5 ticks the signal turns green and the ambulance clears.</p>
+      <div class="callout warn">
+        <strong>Comparison</strong>
+        With a fixed-timing system, an ambulance may have to wait up to a full signal cycle (~45 seconds) before getting a green light. The smart preemption system cuts this to <strong>5–12 seconds</strong> — a 73% reduction that can be the difference between life and death.
+      </div>
+    </section>
+
+    <!-- ── Scenarios ──────────────────────────────────────── -->
+    <section class="doc-section" id="scenarios">
+      <h2>Scenarios</h2>
+      <p>Each scenario changes the <strong>vehicle arrival rate</strong> (how often new vehicles join the queue each second) and the <strong>vehicle mix</strong> (proportion of cars, buses, and trucks, which affects how fast queues clear).</p>
+      <div class="scen-grid">
+        <div class="scen-card">
+          <div class="icon">🚗</div>
+          <div class="name">Normal</div>
+          <p>Balanced mid-day traffic across all approaches. ~25% chance of a vehicle arriving each second per lane. Mostly private cars — clears quickly. Good baseline for comparing smart vs. fixed.</p>
+        </div>
+        <div class="scen-card">
+          <div class="icon">🚌</div>
+          <div class="name">Rush Hour</div>
+          <p>Heavy inbound commuter traffic. Northbound and eastbound approaches see ~50% arrival rate. More buses and minibuses in the mix, which clear more slowly than cars. Smart timing shows the largest gains here.</p>
+        </div>
+        <div class="scen-card">
+          <div class="icon">🌙</div>
+          <div class="name">Late Night</div>
+          <p>Very low volume — only ~7% arrival rate. Queues stay small. Smart timing drops to near-minimum green times (15s), making cycles much shorter. Fixed timing wastes 30 seconds even when almost no vehicles are present.</p>
+        </div>
+        <div class="scen-card">
+          <div class="icon">⚠️</div>
+          <div class="name">Incident</div>
+          <p>An accident blocks the North approach at Tetteh Quarshie. Vehicles divert to other approaches, causing unusual congestion patterns. Dispatch an ambulance during this scenario to see the full preemption story.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Metrics ────────────────────────────────────────── -->
+    <section class="doc-section" id="metrics">
+      <h2>Reading the Metrics</h2>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="name">Average Wait Time</div>
+          <div class="abbr">Avg Wait · s</div>
+          <p>How many seconds, on average, each vehicle spends sitting at a red light before it can move through the intersection. Lower is better.</p>
+        </div>
+        <div class="metric-card">
+          <div class="name">Throughput</div>
+          <div class="abbr">TP · veh/min</div>
+          <p>How many vehicles pass through all 4 intersections combined, per minute. Higher means the roads are handling traffic more efficiently.</p>
+        </div>
+        <div class="metric-card">
+          <div class="name">Active Queue</div>
+          <div class="abbr">Queue · veh</div>
+          <p>Total number of vehicles currently waiting at red lights across all 4 intersections and all 16 approach lanes. A rising queue means congestion is building.</p>
+        </div>
+        <div class="metric-card">
+          <div class="name">Emergency Delay</div>
+          <div class="abbr">EV Delay · s</div>
+          <p>How long (in seconds) the most recent emergency vehicle waited from detection to receiving a green light. Only updated when you dispatch an ambulance.</p>
+        </div>
+      </div>
+      <div class="callout info">
+        <strong>How the comparison works</strong>
+        Both the Smart and Fixed engines receive <em>exactly the same</em> random vehicle arrivals every tick. The only difference is the signal timing algorithm. This makes the comparison fair — any difference in wait time or throughput is entirely due to the algorithm, not luck.
+      </div>
+    </section>
+
+    <!-- ── Glossary ───────────────────────────────────────── -->
+    <section class="doc-section" id="glossary">
+      <h2>Glossary</h2>
+      <p>Abbreviations and technical terms used throughout the simulation and report.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Term / Abbrev.</th><th>Full Form</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>STMS</td><td>Smart Traffic Management System</td><td>The overall system being simulated</td></tr>
+            <tr><td>IoT</td><td>Internet of Things</td><td>Physical sensors connected to the internet (IR sensors, cameras, magnetic loops)</td></tr>
+            <tr><td>veh</td><td>vehicle</td><td>Any car, bus, truck, or motorcycle counted in the simulation</td></tr>
+            <tr><td>veh/min</td><td>vehicles per minute</td><td>Throughput measurement — how many vehicles pass an intersection each minute</td></tr>
+            <tr><td>veh/hr</td><td>vehicles per hour</td><td>Same as above but per hour (multiply veh/min by 60)</td></tr>
+            <tr><td>s</td><td>seconds</td><td>Unit of time for wait times and signal durations</td></tr>
+            <tr><td>N / S / E / W</td><td>North / South / East / West</td><td>The four approach directions at each intersection</td></tr>
+            <tr><td>NS / EW</td><td>North-South / East-West</td><td>The two signal phases that alternate</td></tr>
+            <tr><td>Q</td><td>Queue length</td><td>Number of vehicles waiting on a given approach</td></tr>
+            <tr><td>G</td><td>Green time</td><td>How many seconds the green signal stays on for a given phase</td></tr>
+            <tr><td>G_max</td><td>Maximum green time</td><td>Green time never exceeds this (60s in the simulation)</td></tr>
+            <tr><td>EV</td><td>Emergency Vehicle</td><td>Ambulance, fire truck, or police vehicle</td></tr>
+            <tr><td>RFID</td><td>Radio Frequency Identification</td><td>A tag on emergency vehicles that the intersection sensor reads wirelessly</td></tr>
+            <tr><td>GPS</td><td>Global Positioning System</td><td>Satellite-based location tracking used as a backup to RFID</td></tr>
+            <tr><td>IR</td><td>Infrared</td><td>Sensor type that detects vehicles by a beam of invisible light</td></tr>
+            <tr><td>4G / LTE</td><td>4th Generation / Long-Term Evolution</td><td>Mobile data network used to send sensor data to the cloud</td></tr>
+            <tr><td>LoRaWAN</td><td>Long Range Wide Area Network</td><td>Low-power radio network used as a backup when 4G is unavailable</td></tr>
+            <tr><td>AWS</td><td>Amazon Web Services</td><td>Cloud computing platform hosting the data storage and processing</td></tr>
+            <tr><td>IoT Core</td><td>AWS IoT Core</td><td>AWS service that receives millions of sensor messages per second</td></tr>
+            <tr><td>Lambda</td><td>AWS Lambda</td><td>Cloud function that processes incoming sensor data in real time</td></tr>
+            <tr><td>DynamoDB</td><td>Amazon DynamoDB</td><td>Fast cloud database storing all historical traffic records</td></tr>
+            <tr><td>Edge</td><td>Edge computing</td><td>Processing done locally at the intersection (Raspberry Pi) before sending to cloud</td></tr>
+            <tr><td>sat_flow</td><td>Saturation flow rate</td><td>How many vehicles can pass through a green light per second (0.5 in this model)</td></tr>
+            <tr><td>CSV</td><td>Comma-Separated Values</td><td>A spreadsheet file format that Excel, Google Sheets, etc. can open</td></tr>
+            <tr><td>SUMO</td><td>Simulation of Urban MObility</td><td>Professional traffic simulation software used to validate the report results</td></tr>
+            <tr><td>ITS</td><td>Intelligent Transportation Systems</td><td>The broader field of using technology to improve road networks</td></tr>
+            <tr><td>AMA</td><td>Accra Metropolitan Assembly</td><td>City authority responsible for roads in Accra, Ghana</td></tr>
+            <tr><td>GHC / GHS</td><td>Ghana Cedi</td><td>Currency of Ghana</td></tr>
+            <tr><td>NODE 01–04</td><td>Intersection node 1 to 4</td><td>The 4 intersections in the simulation grid</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Tech stack ─────────────────────────────────────── -->
+    <section class="doc-section" id="tech-stack">
+      <h2>Technology Stack</h2>
+      <p>The real-world system described in the report uses the following layers. The simulation models their behaviour in software.</p>
+      <div class="stack-list">
+        <div class="stack-row">
+          <span class="stack-icon">📡</span>
+          <div>
+            <h4>IoT Sensor Layer</h4>
+            <p>Infrared (IR) sensors detect vehicle presence. Magnetic loop detectors buried in the road count vehicles. IP cameras provide video for density estimation and emergency vehicle detection. Each intersection has 6 IR sensors, 4 magnetic loops, and 2 cameras — 12 devices per node, 48 total.</p>
+          </div>
+        </div>
+        <div class="stack-row">
+          <span class="stack-icon">🖥️</span>
+          <div>
+            <h4>Edge Gateway · Raspberry Pi 4</h4>
+            <p>A small computer at each intersection runs the adaptive algorithm locally. It reads sensor data every 100ms, computes the optimal green time, and controls the traffic lights directly — without needing the cloud. This keeps latency under 50ms even if the internet connection drops. Aggregated data is sent to the cloud every 5 seconds.</p>
+          </div>
+        </div>
+        <div class="stack-row">
+          <span class="stack-icon">📶</span>
+          <div>
+            <h4>Wireless Network · 4G/LTE + LoRaWAN</h4>
+            <p>4G mobile data is the primary link between edge gateways and the cloud. LoRaWAN (low-power, long-range radio) is used as a fallback for low-bandwidth status updates when 4G is unavailable. Wi-Fi handles local configuration and maintenance access.</p>
+          </div>
+        </div>
+        <div class="stack-row">
+          <span class="stack-icon">☁️</span>
+          <div>
+            <h4>Cloud Platform · AWS</h4>
+            <p><strong>AWS IoT Core</strong> receives sensor messages from all intersections. <strong>AWS Lambda</strong> functions process incoming data, detect anomalies, and update traffic models. <strong>Amazon DynamoDB</strong> stores all historical records for trend analysis and city planning. The cloud also hosts the monitoring dashboard that traffic officers use.</p>
+          </div>
+        </div>
+        <div class="stack-row">
+          <span class="stack-icon">🚨</span>
+          <div>
+            <h4>Emergency Preemption · RFID + GPS</h4>
+            <p>Emergency vehicles carry RFID tags that intersection readers detect up to 300m away. As a backup, GPS coordinates broadcast from the vehicle are matched against intersection locations. When detected, a preemption signal reaches the edge gateway within 1 second and green is forced within 5 seconds.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Export ─────────────────────────────────────────── -->
+    <section class="doc-section" id="export">
+      <h2>Exporting Data</h2>
+      <p>Click <strong>↓ Export CSV</strong> in the scenario bar to download a spreadsheet of the simulation's recorded history. Data is recorded every 20 simulated seconds. The file contains:</p>
+      <div class="formula">
+tick, scenario, display_mode,
+smart_wait_s, fixed_wait_s,
+smart_tp_veh_min, fixed_tp_veh_min,
+smart_total_queue, fixed_total_queue</div>
+      <p>Open the CSV in Microsoft Excel, Google Sheets, or any spreadsheet tool to chart how wait time and throughput evolve over time, or to compare scenarios side by side.</p>
+      <div class="callout">
+        <strong>Tip</strong>
+        Run the simulation for at least 2 minutes at 3× speed before exporting — this gives enough data points to see meaningful trends. Switch scenarios mid-run and the export will label each row with the scenario active at that time.
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <span>STMS Documentation · GIMPA Data Communications & Networking · Group 7 · 2026</span>
+  <span><a href="index.html" style="color:var(--ink-3);text-decoration:none;">← Back to simulation</a></span>
+</footer>
+
+</body>
+</html>
