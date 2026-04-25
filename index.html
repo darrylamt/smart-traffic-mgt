@@ -369,9 +369,93 @@ footer .chip .d{width:5px;height:5px;border-radius:50%;background:var(--accent);
 ::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--ink-3);}
 
+/* ── Tablet ──────────────────────────────────────── */
 @media(max-width:1180px){
   main{grid-template-columns:1fr 300px;}
   .kpis{grid-template-columns:repeat(2,1fr);}
+}
+
+/* ── Mobile ──────────────────────────────────────── */
+@media(max-width:767px){
+  /* Allow page to scroll on mobile */
+  html,body{height:auto;min-height:100%;}
+  body{overflow-x:hidden;overflow-y:auto;}
+
+  /* Header: allow wrap on tiny screens */
+  header{padding:10px 12px;flex-wrap:wrap;gap:6px;}
+  .brand-text .t2{display:none;}
+  .mark{width:28px;height:28px;border-radius:7px;}
+  .brand-text .t1{font-size:17px;}
+  .live{display:none;}
+  .seg button{padding:5px 10px;font-size:11px;}
+  .spd-lbl{display:none;}
+  .spd-group button{padding:4px 9px;font-size:10px;}
+
+  /* Main: single column, no fixed height */
+  main{
+    display:flex;flex-direction:column;
+    flex:none;height:auto;overflow:visible;
+  }
+
+  /* Stage */
+  .stage{padding:10px;gap:8px;}
+
+  /* KPI: 2×2 */
+  .kpis{grid-template-columns:repeat(2,1fr);gap:7px;}
+  .kpi{padding:9px 10px;border-radius:10px;}
+  .kpi .label{font-size:8px;}
+  .kpi .value{font-size:20px;}
+  .kpi .value .unit{font-size:10px;}
+  .kpi .delta{font-size:9px;}
+
+  /* Canvas card */
+  .canvas-card{padding:8px;flex:none;}
+  .canvas-head{padding:0 2px 8px;margin-bottom:8px;}
+  .canvas-title{font-size:13px;}
+  .canvas-sub{display:none;}
+  .canvas-coord{font-size:9px;gap:8px;}
+
+  /* Canvas wrap: lock to 900:580 aspect ratio so fitCanvas() works */
+  .canvas-wrap{
+    flex:none;width:100%;
+    aspect-ratio:900/580;
+    overflow:hidden;
+  }
+  .legend{display:none;}
+
+  /* Aside becomes a scrollable block below canvas */
+  aside{
+    width:100%;border-left:none;
+    border-top:1px solid var(--line);
+    overflow:visible;
+    display:block;
+  }
+  .aside-scroll{
+    flex:none;overflow:visible;height:auto;
+    padding:12px 12px 10px;gap:14px;
+  }
+  .section-head .h{font-size:13px;}
+  .kvs .kv{font-size:11px;}
+  .kv .v{font-size:10px;}
+
+  /* Emergency stats side by side stays fine; log shrinks */
+  .emg-stat .val{font-size:18px;}
+  .log-pane{max-height:160px;}
+  .log-head{padding:8px 12px;}
+  .log-body{padding:4px 12px 10px;}
+  .log-entry{font-size:10px;}
+
+  /* Footer: wrap chips */
+  footer{padding:6px 12px;flex-wrap:wrap;gap:4px;}
+  footer .chips{flex-wrap:wrap;gap:8px;}
+}
+
+/* ── Small phone ( < 430px ) ─────────────────────── */
+@media(max-width:430px){
+  .kpi .value{font-size:18px;}
+  .canvas-coord{display:none;}
+  .cmp-top .num{font-size:11px;}
+  footer .chips{display:none;}
 }
 </style>
 </head>
@@ -1129,7 +1213,9 @@ function fitCanvas() {
   const wrap = canvas.parentElement;
   if (!wrap || wrap.clientWidth === 0) return;
   const aw = wrap.clientWidth  - 2;
-  const ah = wrap.clientHeight - 2;
+  // On mobile the wrap uses aspect-ratio CSS so clientHeight = aw*(H/W).
+  // On desktop it fills the flex container vertically.
+  const ah = wrap.clientHeight > 10 ? wrap.clientHeight - 2 : aw * (H / W);
   const scale = Math.min(aw / W, ah / H);
   canvas.style.width  = Math.round(W * scale) + 'px';
   canvas.style.height = Math.round(H * scale) + 'px';
