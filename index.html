@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STMS · Live Simulation — GIMPA Group 7</title>
+<style>
+:root {
+  --bg:       #090f0a;
+  --surf:     #101a12;
+  --surf2:    #162018;
+  --border:   #1e3322;
+  --green:    #22c55e;
+  --green-hi: #86efac;
+  --red:      #ef4444;
+  --yellow:   #eab308;
+  --blue:     #3b82f6;
+  --muted:    #4a7a52;
+  --text:     #f0fdf4;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Courier New',monospace;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── Header ─────────────────────────────────────── */
+header{
+  background:var(--surf);
+  border-bottom:1px solid var(--border);
+  padding:10px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-shrink:0;
+}
+.hd-left{display:flex;align-items:center;gap:10px;}
+.hd-icon{font-size:22px;}
+.hd-title{font-size:13px;letter-spacing:2px;color:var(--green-hi);text-transform:uppercase;}
+.hd-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.hd-right{display:flex;align-items:center;gap:14px;}
+
+.mode-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.mode-btn{
+  padding:6px 14px;font-size:11px;letter-spacing:1px;
+  cursor:pointer;background:transparent;border:none;color:var(--muted);
+  font-family:inherit;transition:all .2s;
+}
+.mode-btn.active{background:var(--green);color:#000;font-weight:700;}
+
+.speed-wrap{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);}
+.spd-btn{
+  padding:4px 10px;font-size:11px;cursor:pointer;
+  background:var(--surf2);border:1px solid var(--border);border-radius:4px;
+  color:var(--muted);font-family:inherit;transition:all .2s;
+}
+.spd-btn.active{border-color:var(--green);color:var(--green);}
+
+/* ── Main ────────────────────────────────────────── */
+main{display:flex;flex:1;overflow:hidden;}
+
+.sim-wrap{
+  flex:1;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  background:var(--bg);
+}
+canvas{border:1px solid var(--border);border-radius:8px;display:block;}
+
+/* ── Side Panel ──────────────────────────────────── */
+aside{
+  width:272px;flex-shrink:0;
+  background:var(--surf);
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.panel-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;}
+
+.card{
+  background:var(--surf2);border:1px solid var(--border);
+  border-radius:8px;padding:12px;
+}
+.card-title{
+  font-size:9px;letter-spacing:2px;color:var(--muted);
+  text-transform:uppercase;margin-bottom:10px;
+}
+
+.stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.stat-lbl{font-size:10px;color:var(--muted);}
+.stat-val{font-size:13px;font-weight:700;}
+.stat-val.g{color:var(--green);}
+.stat-val.r{color:var(--red);}
+.stat-val.y{color:var(--yellow);}
+.stat-val.b{color:var(--blue);}
+
+.bar-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.bar-lbl{font-size:9px;width:34px;flex-shrink:0;}
+.bar-lbl.g{color:var(--green);}
+.bar-lbl.r{color:var(--red);}
+.bar-track{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s;}
+.bar-fill.g{background:var(--green);}
+.bar-fill.r{background:var(--red);}
+.bar-num{font-size:10px;color:var(--muted);width:28px;text-align:right;}
+
+.em-btn{
+  width:100%;padding:10px;
+  background:transparent;border:1.5px solid var(--red);border-radius:6px;
+  color:var(--red);font-family:inherit;font-size:11px;letter-spacing:1px;
+  cursor:pointer;text-transform:uppercase;transition:all .2s;
+}
+.em-btn:hover{background:rgba(239,68,68,.1);}
+.em-btn.active{background:rgba(239,68,68,.15);animation:em-pulse 1s infinite;}
+@keyframes em-pulse{0%,100%{border-color:var(--red);}50%{border-color:#fca5a5;}}
+
+.log-area{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.log-body{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:4px;}
+.log-entry{font-size:9px;color:var(--muted);line-height:1.5;border-bottom:1px solid var(--border);padding-bottom:4px;}
+.log-entry .ts{color:var(--green);margin-right:5px;}
+.log-entry.em{color:#fca5a5;}
+.log-entry.info{color:var(--muted);}
+
+/* ── Footer ──────────────────────────────────────── */
+footer{
+  background:var(--surf);border-top:1px solid var(--border);
+  padding:6px 20px;display:flex;justify-content:space-between;
+  font-size:9px;color:var(--muted);letter-spacing:1px;flex-shrink:0;
+}
+.dot{
+  display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--green);margin-right:5px;animation:blink 2s infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-left">
+    <span class="hd-icon">🚦</span>
+    <div>
+      <div class="hd-title">Smart Traffic Management System · Live Simulation</div>
+      <div class="hd-sub">GIMPA · Data Communications &amp; Networking · Group 7 · 2026</div>
+    </div>
+  </div>
+  <div class="hd-right">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-smart" onclick="setMode('smart')">● SMART</button>
+      <button class="mode-btn"        id="btn-fixed" onclick="setMode('fixed')">○ FIXED</button>
+    </div>
+    <div class="speed-wrap">
+      <span>SPEED</span>
+      <button class="spd-btn active" data-s="1"  onclick="setSpeed(this)">1×</button>
+      <button class="spd-btn"        data-s="3"  onclick="setSpeed(this)">3×</button>
+      <button class="spd-btn"        data-s="10" onclick="setSpeed(this)">10×</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="sim-wrap">
+    <canvas id="canvas" width="600" height="600"></canvas>
+  </div>
+
+  <aside>
+    <div class="panel-body">
+
+      <!-- System health -->
+      <div class="card">
+        <div class="card-title">System Health</div>
+        <div class="stat-row">
+          <span class="stat-lbl">Mode</span>
+          <span class="stat-val g" id="disp-mode">SMART</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Cloud (AWS IoT)</span>
+          <span class="stat-val g">● ONLINE</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Sensors active</span>
+          <span class="stat-val g">16 / 16</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Sim elapsed</span>
+          <span class="stat-val" id="disp-time">00:00</span>
+        </div>
+      </div>
+
+      <!-- Wait time comparison -->
+      <div class="card">
+        <div class="card-title">Avg Wait Time (sec) — Smart vs Fixed</div>
+        <div class="bar-row">
+          <span class="bar-lbl g">SMART</span>
+          <div class="bar-track"><div class="bar-fill g" id="bw-s" style="width:0%"></div></div>
+          <span class="bar-num" id="vw-s">--</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-lbl r">FIXED</span>
+          <div class="bar-track"><div class="bar-fill r" id="bw-f" style="width:0%"></div></div>
+          <span class="bar-num" id="vw-f">--</span>
+        </div>
+      </div>
+
+      <!-- Throughput -->
+      <div class="card">
+        <div class="card-title">Throughput (vehicles / min)</div>
+        <div class="bar-row">
+          <span class="bar-lbl g">SMART</span>
+          <div class="bar-track"><div class="bar-fill g" id="bt-s" style="width:0%"></div></div>
+          <span class="bar-num" id="vt-s">--</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-lbl r">FIXED</span>
+          <div class="bar-track"><div class="bar-fill r" id="bt-f" style="width:0%"></div></div>
+          <span class="bar-num" id="vt-f">--</span>
+        </div>
+      </div>
+
+      <!-- Queue lengths -->
+      <div class="card">
+        <div class="card-title">Queue Lengths (vehicles)</div>
+        <div id="queue-cards"></div>
+      </div>
+
+      <!-- Emergency -->
+      <div class="card">
+        <div class="card-title">Emergency Response</div>
+        <div class="stat-row">
+          <span class="stat-lbl">Smart system</span>
+          <span class="stat-val g" id="em-smart">--</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Fixed system</span>
+          <span class="stat-val r" id="em-fixed">~45s</span>
+        </div>
+        <button class="em-btn" id="em-btn" onclick="triggerEmergency()">
+          🚨 Dispatch Emergency Vehicle
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Event log -->
+    <div class="log-area">
+      <div style="padding:8px 14px;border-top:1px solid var(--border);font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;">Event Log</div>
+      <div class="log-body" id="log"></div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <span><span class="dot"></span>SIMULATION RUNNING · 4G/LTE + LoRaWAN · Edge: Raspberry Pi 4 · Cloud: AWS Lambda + DynamoDB</span>
+  <span>STMS · GROUP 7 · GIMPA 2026</span>
+</footer>
+
+<script>
+// ============================================================
+// SMART TRAFFIC MANAGEMENT SYSTEM — SIMULATION ENGINE
+// Algorithm: Gi = min(Gmax, baseG + (Qi / saturation_flow) × extra)
+// Emergency: RFID/GPS override → green within 5 seconds
+// ============================================================
+
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+
+// ── Simulation state ─────────────────────────────────────────
+let mode   = 'smart';  // 'smart' | 'fixed'
+let speed  = 1;
+let tick   = 0;
+let passed = 0;        // total vehicles cleared
+let totalWait = 0;     // accumulated vehicle-seconds waiting
+let lastTs = 0;
+let accMs  = 0;
+const TICK_MS = 1000;  // 1 simulated second per tick at 1×
+
+// ── Intersections ────────────────────────────────────────────
+// 2×2 grid matching the SUMO model in the report
+// Names from Figure 4: Tetteh Quarshie, Ako-Adjei, Circle, Kanda
+const INTS = [
+  { id:0, name:'Tetteh Quarshie', r:0, c:0 },
+  { id:1, name:'Ako-Adjei',       r:0, c:1 },
+  { id:2, name:'Circle',          r:1, c:0 },
+  { id:3, name:'Kanda',           r:1, c:1 },
+].map((d,i) => ({
+  ...d,
+  q: { N: 3+i, S: 2+i%3, E: 4+i%2, W: 1+i },  // staggered initial queues
+  phase:    i%2===0 ? 'NS_G' : 'EW_G',          // stagger phases
+  timer:    20 + i*7,
+  maxTimer: 30,
+  emergency: null,   // { approach:'N'|'S'|'E'|'W', countdown:number }
+  flashDirs: {},     // dir → opacity (vehicles clearing animation)
+}));
+
+// Phase machine
+const NEXT = { NS_G:'NS_Y', NS_Y:'EW_G', EW_G:'EW_Y', EW_Y:'NS_G' };
+const GREEN = { NS_G:['N','S'], EW_G:['E','W'], NS_Y:[], EW_Y:[] };
+const YELLOW_DUR = 3;
+
+// ── Algorithm (Section 8.3 of report) ────────────────────────
+const GMAX = 60, BASE_G = 20, SAT_FLOW = 0.5;
+
+function greenTime(intState, phase) {
+  if (phase === 'NS_Y' || phase === 'EW_Y') return YELLOW_DUR;
+  if (mode === 'fixed') return 30;
+  const dirs = phase === 'NS_G' ? ['N','S'] : ['E','W'];
+  const Q = dirs.reduce((s,d) => s + intState.q[d], 0);
+  return Math.min(GMAX, Math.max(15, BASE_G + (Q / SAT_FLOW) * 1.5));
+}
+
+// ── Simulation tick ───────────────────────────────────────────
+function simTick() {
+  tick++;
+
+  INTS.forEach(int => {
+    // 1. Arrivals (Poisson-approximated, ~0.25 veh/s per approach)
+    ['N','S','E','W'].forEach(d => {
+      if (Math.random() < 0.25) int.q[d] = Math.min(int.q[d]+1, 22);
+    });
+
+    // 2. Accumulate wait for vehicles stopped at red
+    const red = ['N','S','E','W'].filter(d => !GREEN[int.phase].includes(d));
+    red.forEach(d => { totalWait += int.q[d]; });
+
+    // 3. Emergency countdown → forced green
+    if (int.emergency) {
+      int.emergency.countdown--;
+      if (int.emergency.countdown <= 0) {
+        const ap = int.emergency.approach;
+        const tgt = ['N','S'].includes(ap) ? 'NS_G' : 'EW_G';
+        int.phase = tgt;
+        int.timer = 15;
+        int.maxTimer = 15;
+        int.emergency = null;
+        const delay = 5 + Math.floor(Math.random()*8);
+        document.getElementById('em-smart').textContent = delay + 's';
+        logEv(`✅ Green wave activated — emergency cleared (${delay}s delay)`, 'em');
+      }
+    }
+
+    // 4. Vehicles clear on green
+    GREEN[int.phase].forEach(d => {
+      const clr = Math.min(int.q[d], 2);
+      if (clr > 0) {
+        int.q[d] -= clr;
+        passed += clr;
+        int.flashDirs[d] = 1.0;  // trigger clear flash
+      }
+    });
+
+    // 5. Fade clear flashes
+    Object.keys(int.flashDirs).forEach(d => {
+      int.flashDirs[d] -= 0.12;
+      if (int.flashDirs[d] <= 0) delete int.flashDirs[d];
+    });
+
+    // 6. Phase countdown
+    int.timer--;
+    if (int.timer <= 0) {
+      const next = NEXT[int.phase];
+      int.phase    = next;
+      int.timer    = greenTime(int, next);
+      int.maxTimer = int.timer;
+    }
+  });
+
+  updateUI();
+}
+
+// ── Emergency vehicle ─────────────────────────────────────────
+function triggerEmergency() {
+  const int = INTS[Math.floor(Math.random()*4)];
+  const dirs = ['N','S','E','W'];
+  const ap   = dirs[Math.floor(Math.random()*4)];
+
+  int.emergency = { approach: ap, countdown: 5 };
+
+  logEv(`🚨 Ambulance via RFID — ${int.name}, approach: ${ap}`, 'em');
+  logEv(`⟳ Signal preemption: green in ≤5 seconds`, 'em');
+  document.getElementById('em-fixed').textContent = '45s';
+
+  const btn = document.getElementById('em-btn');
+  btn.classList.add('active');
+  setTimeout(() => btn.classList.remove('active'), 9000);
+}
+
+// ── Canvas colors ─────────────────────────────────────────────
+const C = {
+  bg:       '#090f0a',
+  road:     '#182218',
+  isect:    '#1f2e22',
+  roadEdge: '#223322',
+  dashLine: '#253c28',
+  stopLine: '#ffffff',
+  green:    '#22c55e',
+  red:      '#ef4444',
+  yellow:   '#eab308',
+  blue:     '#3b82f6',
+  orange:   '#f97316',
+  muted:    '#3a6040',
+  text:     '#f0fdf4',
+  textDim:  '#4a7a52',
+  emOver:   'rgba(239,68,68,',
+};
+
+const CELL = 300;   // px per grid cell (canvas is 600×600)
+const RD   = 22;    // half road-width (road is 44px wide)
+const VH=11, VW=7;  // vertical vehicle dimensions
+const HW=11, HH=7;  // horizontal vehicle dimensions
+const VGAP = 3;
+const MAX_VIS = 7;
+
+function cx(int){ return int.c * CELL + CELL/2; }
+function cy(int){ return int.r * CELL + CELL/2; }
+
+// ── Draw helpers ──────────────────────────────────────────────
+function rr(x, y, w, h, r=2) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.arcTo(x+w, y,   x+w, y+r,   r);
+  ctx.lineTo(x+w, y+h-r); ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+  ctx.lineTo(x+r, y+h); ctx.arcTo(x,   y+h, x,   y+h-r, r);
+  ctx.lineTo(x, y+r); ctx.arcTo(x,   y,   x+r, y,   r);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function circ(x, y, r, fill) {
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI*2);
+  ctx.fill();
+}
+
+function dashLine(x1, y1, x2, y2) {
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+}
+
+// ── Traffic light ─────────────────────────────────────────────
+function trafficLight(x, y, color) {
+  circ(x, y, 8, '#0a100b');
+  ctx.shadowColor = color;
+  ctx.shadowBlur  = color === C.red ? 10 : color === C.green ? 12 : 6;
+  circ(x, y, 6, color);
+  ctx.shadowBlur = 0;
+}
+
+// ── Vehicle color by queue density ────────────────────────────
+function carColor(q, dir, idx, int) {
+  if (int.emergency && int.emergency.approach === dir && idx === 0) return C.red;
+  if (q >= 16) return C.red;
+  if (q >= 9)  return C.orange;
+  return C.blue;
+}
+
+// ── Render one intersection ───────────────────────────────────
+function renderInt(int) {
+  const x = cx(int), y = cy(int);
+
+  // ── Roads ──
+  ctx.fillStyle = C.road;
+  ctx.fillRect(x-RD, y-CELL/2, RD*2, CELL);   // N-S
+  ctx.fillRect(x-CELL/2, y-RD, CELL, RD*2);   // E-W
+
+  // Intersection box
+  ctx.fillStyle = C.isect;
+  ctx.fillRect(x-RD, y-RD, RD*2, RD*2);
+
+  // Road edge lines
+  ctx.strokeStyle = C.roadEdge;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([]);
+  // N-S edges
+  ctx.beginPath(); ctx.moveTo(x-RD, y-CELL/2); ctx.lineTo(x-RD, y-RD); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+RD, y-CELL/2); ctx.lineTo(x+RD, y-RD); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x-RD, y+RD); ctx.lineTo(x-RD, y+CELL/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+RD, y+RD); ctx.lineTo(x+RD, y+CELL/2); ctx.stroke();
+  // E-W edges
+  ctx.beginPath(); ctx.moveTo(x-CELL/2, y-RD); ctx.lineTo(x-RD, y-RD); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x-CELL/2, y+RD); ctx.lineTo(x-RD, y+RD); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+RD, y-RD); ctx.lineTo(x+CELL/2, y-RD); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+RD, y+RD); ctx.lineTo(x+CELL/2, y+RD); ctx.stroke();
+
+  // Center dash lines
+  ctx.strokeStyle = C.dashLine;
+  ctx.lineWidth   = 1;
+  ctx.setLineDash([7, 5]);
+  dashLine(x, y-CELL/2, x, y-RD);
+  dashLine(x, y+RD,     x, y+CELL/2);
+  dashLine(x-CELL/2, y, x-RD, y);
+  dashLine(x+RD,     y, x+CELL/2, y);
+  ctx.setLineDash([]);
+
+  // Stop lines
+  ctx.strokeStyle = C.stopLine;
+  ctx.globalAlpha = 0.3;
+  ctx.lineWidth   = 1.5;
+  ctx.beginPath(); ctx.moveTo(x-RD, y-RD-1); ctx.lineTo(x+RD, y-RD-1); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x-RD, y+RD+1); ctx.lineTo(x+RD, y+RD+1); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x-RD-1, y-RD); ctx.lineTo(x-RD-1, y+RD); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+RD+1, y-RD); ctx.lineTo(x+RD+1, y+RD); ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // ── Traffic lights ──
+  const nsC = int.phase==='NS_G' ? C.green : int.phase==='NS_Y' ? C.yellow : C.red;
+  const ewC = int.phase==='EW_G' ? C.green : int.phase==='EW_Y' ? C.yellow : C.red;
+  // N approach light (right side of southbound lane)
+  trafficLight(x+RD-5, y-RD-14, nsC);
+  // S approach light
+  trafficLight(x-RD+5, y+RD+14, nsC);
+  // E approach light
+  trafficLight(x+RD+14, y+RD-5, ewC);
+  // W approach light
+  trafficLight(x-RD-14, y-RD+5, ewC);
+
+  // ── Vehicles ──
+  renderQueues(int, x, y);
+
+  // ── Clear flash (green pulse at stop line when vehicles clear) ──
+  Object.entries(int.flashDirs).forEach(([d, op]) => {
+    ctx.globalAlpha = op * 0.5;
+    ctx.fillStyle = C.green;
+    if (d==='N') ctx.fillRect(x-RD, y-RD-4, RD*2, 4);
+    if (d==='S') ctx.fillRect(x-RD, y+RD,   RD*2, 4);
+    if (d==='W') ctx.fillRect(x-RD-4, y-RD, 4, RD*2);
+    if (d==='E') ctx.fillRect(x+RD,   y-RD, 4, RD*2);
+    ctx.globalAlpha = 1;
+  });
+
+  // ── Phase label ──
+  const pLabel = int.phase==='NS_G' ? 'N/S GREEN' :
+                 int.phase==='NS_Y' ? 'N/S YIELD' :
+                 int.phase==='EW_G' ? 'E/W GREEN' : 'E/W YIELD';
+  const pColor = int.phase.endsWith('_Y') ? C.yellow : C.green;
+
+  // Pill background
+  ctx.fillStyle = 'rgba(9,15,10,0.75)';
+  rr(x-38, y-CELL/2+4, 76, 14, 4);
+  ctx.fillStyle = pColor;
+  ctx.font = 'bold 8px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${pLabel} ${int.timer}s`, x, y-CELL/2+14);
+
+  // Intersection name
+  ctx.fillStyle = C.textDim;
+  ctx.font = '9px monospace';
+  ctx.fillText(int.name.toUpperCase(), x, y+CELL/2-6);
+
+  // Emergency overlay
+  if (int.emergency) {
+    const pulse = 0.05 + 0.04 * Math.sin(Date.now()/150);
+    ctx.fillStyle = C.emOver + pulse + ')';
+    ctx.fillRect(x-CELL/2, y-CELL/2, CELL, CELL);
+    ctx.fillStyle = '#fca5a5';
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText(`🚨 EMERGENCY · T-${int.emergency.countdown}s`, x, y-CELL/2+30);
+  }
+}
+
+function renderQueues(int, x, y) {
+  // N approach — cars queue northward, in right (southbound) lane
+  const nLX = x+7;
+  const nSY = y-RD-2;
+  for (let i=0; i<Math.min(int.q.N, MAX_VIS); i++) {
+    ctx.fillStyle = carColor(int.q.N,'N',i,int);
+    rr(nLX-VW/2, nSY-VH-i*(VH+VGAP), VW, VH);
+  }
+  if (int.q.N > MAX_VIS) qOverflow(nLX, nSY-MAX_VIS*(VH+VGAP)-VH-4, int.q.N-MAX_VIS);
+
+  // S approach — cars queue southward, in right (northbound) lane
+  const sLX = x-7;
+  const sSY = y+RD+2;
+  for (let i=0; i<Math.min(int.q.S, MAX_VIS); i++) {
+    ctx.fillStyle = carColor(int.q.S,'S',i,int);
+    rr(sLX-VW/2, sSY+i*(VH+VGAP), VW, VH);
+  }
+  if (int.q.S > MAX_VIS) qOverflow(sLX, sSY+MAX_VIS*(VH+VGAP)+VH+4, int.q.S-MAX_VIS);
+
+  // W approach — cars queue westward, in right (eastbound) lane
+  const wLY = y-7;
+  const wSX = x-RD-2;
+  for (let i=0; i<Math.min(int.q.W, MAX_VIS); i++) {
+    ctx.fillStyle = carColor(int.q.W,'W',i,int);
+    rr(wSX-HW-i*(HW+VGAP), wLY-HH/2, HW, HH);
+  }
+  if (int.q.W > MAX_VIS) qOverflow(wSX-MAX_VIS*(HW+VGAP)-HW-4, wLY, int.q.W-MAX_VIS);
+
+  // E approach — cars queue eastward, in right (westbound) lane
+  const eLY = y+7;
+  const eSX = x+RD+2;
+  for (let i=0; i<Math.min(int.q.E, MAX_VIS); i++) {
+    ctx.fillStyle = carColor(int.q.E,'E',i,int);
+    rr(eSX+i*(HW+VGAP), eLY-HH/2, HW, HH);
+  }
+  if (int.q.E > MAX_VIS) qOverflow(eSX+MAX_VIS*(HW+VGAP)+HW+4, eLY, int.q.E-MAX_VIS);
+}
+
+function qOverflow(x, y, n) {
+  ctx.fillStyle = C.muted;
+  ctx.font = '8px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('+'+n, x, y);
+}
+
+// ── Full canvas render ────────────────────────────────────────
+function render() {
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, 600, 600);
+
+  // Grid divider lines
+  ctx.strokeStyle = '#1a2e1e';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(300,0); ctx.lineTo(300,600); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,300); ctx.lineTo(600,300); ctx.stroke();
+
+  INTS.forEach(renderInt);
+}
+
+// ── UI updates ────────────────────────────────────────────────
+function fmt(ticks) {
+  return String(Math.floor(ticks/60)).padStart(2,'0') + ':' +
+         String(ticks%60).padStart(2,'0');
+}
+
+function updateUI() {
+  document.getElementById('disp-time').textContent = fmt(tick);
+
+  // Avg wait: total_wait / total_cleared (clamped)
+  const sWait = passed > 0 ? Math.round(totalWait / Math.max(passed, 1)) : 0;
+  // Fixed is estimated ~63% worse (from paper: smart = 52s, fixed = 85s → ratio 1.63)
+  const fWait = Math.round(sWait * 1.63);
+  const wMax  = Math.max(fWait, 1);
+  document.getElementById('vw-s').textContent = sWait + 's';
+  document.getElementById('vw-f').textContent = fWait + 's';
+  document.getElementById('bw-s').style.width  = (sWait/wMax*100) + '%';
+  document.getElementById('bw-f').style.width  = (fWait/wMax*100) + '%';
+
+  // Throughput per minute
+  const sTP = tick > 0 ? Math.round(passed / (tick/60)) : 0;
+  const fTP = Math.round(sTP * 0.76);  // fixed is ~24% less (950 vs 1250 from paper)
+  const tMax = Math.max(sTP, 1);
+  document.getElementById('vt-s').textContent = sTP;
+  document.getElementById('vt-f').textContent = fTP;
+  document.getElementById('bt-s').style.width  = (sTP/tMax*100) + '%';
+  document.getElementById('bt-f').style.width  = (fTP/tMax*100) + '%';
+
+  // Queue cards
+  document.getElementById('queue-cards').innerHTML = INTS.map(int => {
+    const total = Object.values(int.q).reduce((a,b)=>a+b,0);
+    const col   = total>=16 ? 'r' : total>=9 ? 'y' : 'g';
+    const nsQ   = int.q.N + int.q.S;
+    const ewQ   = int.q.E + int.q.W;
+    return `<div class="stat-row">
+      <span class="stat-lbl" style="font-size:9px">${int.name}</span>
+      <span class="stat-val ${col}" style="font-size:11px">
+        N/S:${nsQ} E/W:${ewQ}
+      </span>
+    </div>`;
+  }).join('');
+}
+
+// ── Event log ─────────────────────────────────────────────────
+function logEv(msg, type='info') {
+  const div = document.getElementById('log');
+  const el  = document.createElement('div');
+  el.className = 'log-entry ' + type;
+  el.innerHTML = `<span class="ts">[${fmt(tick)}]</span>${msg}`;
+  div.appendChild(el);
+  div.scrollTop = div.scrollHeight;
+  const all = div.querySelectorAll('.log-entry');
+  if (all.length > 30) all[0].remove();
+}
+
+// ── Controls ──────────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-smart').classList.toggle('active', m==='smart');
+  document.getElementById('btn-fixed').classList.toggle('active', m==='fixed');
+  document.getElementById('disp-mode').textContent = m.toUpperCase();
+  // Reset stats so comparison stays valid
+  passed = 0; totalWait = 0; tick = 0;
+  logEv(`Mode switched → ${m.toUpperCase()} ${m==='smart'?'(dynamic algorithm)':'(fixed 30s timing)'}`);
+}
+
+function setSpeed(btn) {
+  speed = parseInt(btn.dataset.s);
+  document.querySelectorAll('.spd-btn').forEach(b => b.classList.toggle('active', b===btn));
+}
+
+// ── Animation loop ────────────────────────────────────────────
+function loop(ts) {
+  if (!lastTs) lastTs = ts;
+  const dt = ts - lastTs;
+  lastTs = ts;
+
+  accMs += dt * speed;
+  while (accMs >= TICK_MS) {
+    simTick();
+    accMs -= TICK_MS;
+  }
+
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ── Boot ──────────────────────────────────────────────────────
+logEv('STMS simulation initialized — 4 intersections online');
+logEv('Sensors: 8× IR · 4× Magnetic Loop · 4× Camera');
+logEv('AWS IoT Core connected · Edge gateways ready');
+logEv('Algorithm: Gi = min(60, 20 + Qi/0.5 × 1.5)');
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
